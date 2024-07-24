@@ -12,7 +12,7 @@
         let source;
         function startVisualization() {
             const token = document.getElementById('token').value;
-            source = new EventSource(`http://57.128.180.87:3030/data/${token}`);
+            source = new EventSource(`https://link.elocarry.net/data/${token}`);
             source.onmessage = function(event) {
                 let data = JSON.parse(event.data);
                 updateRadar(data);
