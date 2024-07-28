@@ -162,7 +162,7 @@
                 let data = JSON.parse(event.data);
 
                 if (data.map_id) {
-                    const map = loadMapImage(data.map_id);
+                    const map = loadMapImage(data.m);
                     drawMap(map);
                 }
 
