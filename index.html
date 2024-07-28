@@ -55,7 +55,6 @@
         let source;
         const canvas = document.getElementById('radar');
         const context = canvas.getContext('2d');
-        const mapImage = document.getElementById('map');
         let currentPlayerPos = null;
 
         const mapSettings = {
@@ -71,6 +70,8 @@
             10: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/split_map.svg", rotate: true },
             11: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/sunset_map.svg", rotate: true },
         };
+
+        const maps = {};
 
         // New scaling factors and offsets
         let scaleX = 0.07774464204685025;
@@ -126,9 +127,25 @@
             });
         }
 
-        mapImage.onload = function() {
-            drawMap();
-        };
+        function preloadMapImages() {
+            return new Promise((resolve, reject) => {
+                let loadedMaps = 0;
+                const mapIds = Object.keys(mapSettings);
+                for (let i = 0; i < mapIds.length; i++) {
+                    const mapId = mapIds[i];
+                    const img = new Image();
+                    img.src = mapSettings[mapId].url;
+                    img.onload = () => {
+                        loadedMaps++;
+                        if (loadedMaps === mapIds.length) {
+                            resolve();
+                        }
+                    };
+                    img.onerror = reject;
+                    maps[mapId] = img;
+                }
+            });
+        }
 
         function drawMap() {
             // Clear canvas and draw the map
@@ -137,9 +154,9 @@
             if (mapSettings[currentMap].rotate) {
                 context.translate(canvas.width / 2, canvas.height / 2);
                 context.rotate(-90 * Math.PI / 180);
-                context.drawImage(mapImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+                context.drawImage(maps[currentMap], -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
             } else {
-                context.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
+                context.drawImage(maps[currentMap], 0, 0, canvas.width, canvas.height);
             }
             context.restore();
         }
@@ -156,12 +173,12 @@
                 }
                 if (data.m && mapSettings[data.m]) {
                     currentMap = data.m;
-                    mapImage.src = mapSettings[currentMap].url;
                     scaleX = 0.07774464204685025; // Adjust scaling factors based on map
                     scaleY = 0.06763396382050703; // Adjust scaling factors based on map
                     offsetX = 408.0429488385525; // Adjust offset based on map
                     offsetY = 817.6971110723387; // Adjust offset based on map
                 }
+                updateRadar(data);
             };
         }
 
@@ -221,11 +238,11 @@
             }
         });
 
-        // Preload agent icons before starting visualization
-        preloadAgentIcons().then(() => {
-            console.log('All agent icons preloaded.');
+        // Preload agent icons and map images before starting visualization
+        Promise.all([preloadAgentIcons(), preloadMapImages()]).then(() => {
+            console.log('All assets preloaded.');
         }).catch((error) => {
-            console.error('Error preloading agent icons:', error);
+            console.error('Error preloading assets:', error);
         });
     </script>
 </body>
