@@ -24,20 +24,18 @@
         const mapImage = document.getElementById('map');
         let currentPlayerPos = null;
 
-        // Simplified scaling factors
-        const scaleX = (485.546875 - 627.546875) / (1126.2659 - 2680.8884);
-        const scaleY = (71 - 70) / (1126.2659 - 2680.8884); // This value is almost zero, as y-coordinate changes minimally.
-        
-        // Simplified offsets based on the first point
-        const offsetX = 627.546875 - scaleX * 2680.8884;
-        const offsetY = 70 - scaleY * -11057.992;
-        
+        // Precomputed scaling factors and offsets
+        const scaleX = 0.10000014482549127;
+        const scaleY = -0.0643826825903363;
+        const offsetX = 359.4228229832575;
+        const offsetY = 768.6912499952144;
+
         mapImage.onload = function() {
             drawMap();
         };
 
         function drawMap() {
-            // Draw the map rotated by 45 degrees counter-clockwise
+            // Draw the map rotated by 90 degrees counter-clockwise
             context.save();
             context.translate(canvas.width / 2, canvas.height / 2);
             context.rotate(-90 * Math.PI / 180);
@@ -57,26 +55,32 @@
             };
         }
 
+        function convertToMapPosition(realX, realY) {
+            const mapX = realX * scaleX + offsetX;
+            const mapY = realY * scaleY + offsetY;
+            return { mapX, mapY };
+        }
+
         function updateRadar(data) {
             context.clearRect(0, 0, canvas.width, canvas.height);
             drawMap();
 
             // Draw players
             data.ps.forEach(player => {
-                let x = scaleX * player.p[0] + offsetX;
-                let y = scaleY * player.p[1] + offsetY;
-                
+                // Convert real position to map position
+                let { mapX, mapY } = convertToMapPosition(player.p[0], player.p[1]);
+
                 context.fillStyle = player.t === 1 ? 'blue' : 'red';
                 context.beginPath();
-                context.arc(x, y, 5, 0, 2 * Math.PI);
+                context.arc(mapX, mapY, 5, 0, 2 * Math.PI);
                 context.fill();
 
                 // Draw direction indicator based on look_direction
                 context.strokeStyle = 'black';
                 context.beginPath();
                 let angleRad = player.l[0] * (Math.PI / 180);
-                context.moveTo(x, y);
-                context.lineTo(x + 10 * Math.cos(angleRad), y + 10 * Math.sin(angleRad));
+                context.moveTo(mapX, mapY);
+                context.lineTo(mapX + 10 * Math.cos(angleRad), mapY + 10 * Math.sin(angleRad));
                 context.stroke();
             });
         }
@@ -88,7 +92,9 @@
             console.log(`Clicked position: (${x}, ${y})`);
 
             if (currentPlayerPos) {
-                console.log(`Current player position: (${currentPlayerPos[0]}, ${currentPlayerPos[1]})`);
+                const { mapX, mapY } = convertToMapPosition(currentPlayerPos[0], currentPlayerPos[1]);
+                console.log(`Current player position on map: (${mapX}, ${mapY})`);
+                console.log(`Actual player position: (${currentPlayerPos[0]}, ${currentPlayerPos[1]})`);
             }
         });
     </script>
