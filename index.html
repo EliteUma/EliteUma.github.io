@@ -61,7 +61,7 @@
             1: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/abyss_map.svg", rotate: true },
             2: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/ascent_map.svg", rotate: true },
             3: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/bind_map.svg", rotate: true },
-            4: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/breeze_map.svg", rotate: false, scaling: { x: [5378.931, 7916.461], y: [488.68805, 1792.822], mapX: [1050, 111], mapY: [948, 2] } },
+            4: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/breeze_map.svg", rotate: false },
             5: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/fracture_map.svg", rotate: true },
             6: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/haven_map.svg", rotate: true },
             7: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/icebox_map.svg", rotate: true },
@@ -73,11 +73,19 @@
 
         const maps = {};
 
+        // New scaling factors and offsets
         let scaleX = 0.07774464204685025;
         let scaleY = 0.06763396382050703;
         let offsetX = 408.0429488385525;
         let offsetY = 817.6971110723387;
 
+        // Custom scaling and offset for Breeze
+        const breezeScaleX = 0.3702;
+        const breezeScaleY = 0.7257;
+        const breezeOffsetX = -2740.7844;
+        const breezeOffsetY = -1301.8004;
+
+        // Agent icons mapping
         const agentIcons = [
             "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/raze.png",
             "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/viper.png",
@@ -145,19 +153,8 @@
             });
         }
 
-        function calculateScalingAndOffset(mapId) {
-            if (!mapSettings[mapId].scaling) return;
-
-            const { x, y, mapX, mapY } = mapSettings[mapId].scaling;
-
-            scaleX = (mapX[0] - mapX[1]) / (x[0] - x[1]);
-            offsetX = mapX[0] - x[0] * scaleX;
-
-            scaleY = (mapY[0] - mapY[1]) / (y[0] - y[1]);
-            offsetY = mapY[0] - y[0] * scaleY;
-        }
-
         function drawMap() {
+            // Clear canvas and draw the map
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.save();
             if (mapSettings[currentMap].rotate) {
@@ -170,7 +167,7 @@
             context.restore();
         }
 
-        let currentMap = 2;
+        let currentMap = 2; // Default map
 
         function startVisualization() {
             const token = document.getElementById('token').value;
@@ -182,7 +179,17 @@
                 }
                 if (data.m && mapSettings[data.m]) {
                     currentMap = data.m;
-                    calculateScalingAndOffset(currentMap);
+                    if (currentMap === 4) { // Breeze map
+                        scaleX = breezeScaleX;
+                        scaleY = breezeScaleY;
+                        offsetX = breezeOffsetX;
+                        offsetY = breezeOffsetY;
+                    } else {
+                        scaleX = 0.07774464204685025; // Default scaling factors
+                        scaleY = 0.06763396382050703; // Default scaling factors
+                        offsetX = 408.0429488385525; // Default offset
+                        offsetY = 817.6971110723387; // Default offset
+                    }
                 }
                 updateRadar(data);
             };
@@ -197,23 +204,28 @@
         function updateRadar(data) {
             drawMap();
 
+            // Draw players
             data.ps.forEach(player => {
+                // Convert real position to map position
                 let { mapX, mapY } = convertToMapPosition(player.p[0], player.p[1]);
 
-                const img = agentImages[player.a];
+                // Draw the icon
+                const img = agentImages[player.a]; // player.a is the agent ID
 
                 if (img) {
-                    const iconSize = 24;
+                    const iconSize = 24; // 25% smaller than 32
                     context.drawImage(img, mapX - iconSize / 2, mapY - iconSize / 2, iconSize, iconSize);
 
+                    // Draw the outline
                     const radius = iconSize / 2;
                     context.beginPath();
-                    context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI);
+                    context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI); // Radius increased by 3 for the outline
                     context.lineWidth = 3;
                     const outlineColor = player.t === 0 ? 'lightblue' : 'red';
                     context.strokeStyle = outlineColor;
                     context.stroke();
 
+                    // Draw direction indicator based on look_direction
                     context.fillStyle = outlineColor;
                     context.beginPath();
                     let angleRad = player.l[0] * (Math.PI / 180);
@@ -239,6 +251,7 @@
             }
         });
 
+        // Preload agent icons and map images before starting visualization
         Promise.all([preloadAgentIcons(), preloadMapImages()]).then(() => {
             console.log('All assets preloaded.');
         }).catch((error) => {
