@@ -49,7 +49,7 @@
             <button id="startButton" onclick="startVisualization()">Start Visualization</button>
         </div>
         <canvas id="radar" width="1024" height="1024"></canvas>
-        <img id="map" src="https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/ascent_map.svg" alt="Ascent Map">
+        <img id="map" src="" alt="Map Image">
     </div>
     <script>
         let source;
@@ -57,14 +57,23 @@
         const context = canvas.getContext('2d');
         const mapImage = document.getElementById('map');
         let currentPlayerPos = null;
+        let shouldRotateMap = true;
 
-        // New scaling factors and offsets
-        const scaleX = 0.07774464204685025;
-        const scaleY = 0.06763396382050703;
-        const offsetX = 408.0429488385525;
-        const offsetY = 817.6971110723387;
+        // Map URLs and rotation flags
+        const maps = {
+            1: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/abyss_map.svg", rotate: true },
+            2: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/ascent_map.svg", rotate: true },
+            3: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/bind_map.svg", rotate: true },
+            4: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/breeze_map.svg", rotate: true },
+            5: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/fracture_map.svg", rotate: true },
+            6: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/haven_map.svg", rotate: true },
+            7: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/icebox_map.svg", rotate: true },
+            8: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/lotus_map.svg", rotate: true },
+            9: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/pearl_map.svg", rotate: true },
+            10: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/split_map.svg", rotate: true },
+            11: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/sunset_map.svg", rotate: true }
+        };
 
-        // Agent icons mapping
         const agentIcons = [
             "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/raze.png",
             "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/viper.png",
@@ -112,16 +121,26 @@
             });
         }
 
+        function loadMap(mapId) {
+            if (maps[mapId]) {
+                mapImage.src = maps[mapId].url;
+                shouldRotateMap = maps[mapId].rotate;
+            } else {
+                console.error('Map ID not recognized');
+            }
+        }
+
         mapImage.onload = function() {
             drawMap();
         };
 
         function drawMap() {
-            // Clear canvas and draw the map rotated by 90 degrees counter-clockwise
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.save();
             context.translate(canvas.width / 2, canvas.height / 2);
-            context.rotate(-90 * Math.PI / 180);
+            if (shouldRotateMap) {
+                context.rotate(-90 * Math.PI / 180);
+            }
             context.drawImage(mapImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
             context.restore();
         }
@@ -133,6 +152,9 @@
                 let data = JSON.parse(event.data);
                 if (data.ps.length > 0) {
                     currentPlayerPos = data.ps[0].p;
+                }
+                if (data.map_id) {
+                    loadMap(data.map_id);
                 }
                 updateRadar(data);
             };
@@ -149,26 +171,22 @@
 
             // Draw players
             data.ps.forEach(player => {
-                // Convert real position to map position
                 let { mapX, mapY } = convertToMapPosition(player.p[0], player.p[1]);
 
-                // Draw the icon
                 const img = agentImages[player.a]; // player.a is the agent ID
 
                 if (img) {
-                    const iconSize = 24; // 25% smaller than 32
+                    const iconSize = 24;
                     context.drawImage(img, mapX - iconSize / 2, mapY - iconSize / 2, iconSize, iconSize);
 
-                    // Draw the outline
                     const radius = iconSize / 2;
                     context.beginPath();
-                    context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI); // Radius increased by 3 for the outline
+                    context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI);
                     context.lineWidth = 3;
                     const outlineColor = player.t === 0 ? 'lightblue' : 'red';
                     context.strokeStyle = outlineColor;
                     context.stroke();
 
-                    // Draw direction indicator based on look_direction
                     context.fillStyle = outlineColor;
                     context.beginPath();
                     let angleRad = player.l[0] * (Math.PI / 180);
