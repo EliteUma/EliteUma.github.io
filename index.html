@@ -10,6 +10,7 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
+            background-color: #151136;
         }
         #container {
             position: relative;
@@ -207,7 +208,7 @@
                 const img = agentImages[player.a]; // player.a is the agent ID
 
                 if (img) {
-                    const iconSize = 24; // 25% smaller than 32
+                    const iconSize = 48; // 50% bigger than 32
                     context.drawImage(img, mapX - iconSize / 2, mapY - iconSize / 2, iconSize, iconSize);
 
                     // Draw the outline
