@@ -23,6 +23,14 @@
         const context = canvas.getContext('2d');
         const mapImage = document.getElementById('map');
         let currentPlayerPos = null;
+
+        // Simplified scaling factors
+        const scaleX = (485.546875 - 627.546875) / (1126.2659 - 2680.8884);
+        const scaleY = (71 - 70) / (1126.2659 - 2680.8884); // This value is almost zero, as y-coordinate changes minimally.
+        
+        // Simplified offsets based on the first point
+        const offsetX = 627.546875 - scaleX * 2680.8884;
+        const offsetY = 70 - scaleY * -11057.992;
         
         mapImage.onload = function() {
             drawMap();
@@ -55,9 +63,8 @@
 
             // Draw players
             data.ps.forEach(player => {
-                // Assume the player coordinates are within the range of the map image dimensions
-                let x = player.p[0]; // You need to calculate the correct x scaling
-                let y = player.p[1]; // You need to calculate the correct y scaling
+                let x = scaleX * player.p[0] + offsetX;
+                let y = scaleY * player.p[1] + offsetY;
                 
                 context.fillStyle = player.t === 1 ? 'blue' : 'red';
                 context.beginPath();
