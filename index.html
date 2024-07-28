@@ -220,21 +220,23 @@
                     context.strokeStyle = outlineColor;
                     context.stroke();
 
-                    context.fillStyle = 'rgba(255, 255, 255, 0.2)'; // White color with 20% opacity
+                    context.fillStyle = 'rgba(255, 255, 255, 0.4)'; // White with 40% opacity
                     context.beginPath();
                     let angleRad = player.l[0] * (Math.PI / 180);
                     let fov = 103 * (Math.PI / 180); // Field of view in radians
+                    let halfFov = fov / 2;
 
-                    // Move to the center of the player icon
+                    // Move to the center of the agent circle
                     context.moveTo(mapX, mapY);
 
-                    // Draw the first line of the cone
-                    context.lineTo(mapX + radius * Math.cos(angleRad - fov / 2), mapY + radius * Math.sin(angleRad - fov / 2));
+                    // Draw line to the edge of the cone
+                    context.lineTo(mapX + (radius * 4) * Math.cos(angleRad - halfFov), mapY + (radius * 4) * Math.sin(angleRad - halfFov));
 
-                    // Draw the arc for the cone
-                    context.arc(mapX, mapY, radius, angleRad - fov / 2, angleRad + fov / 2);
+                    // Draw arc for the cone
+                    context.arc(mapX, mapY, radius * 4, angleRad - halfFov, angleRad + halfFov);
 
-                    // Close the path and fill the cone
+                    // Close the cone path
+                    context.lineTo(mapX, mapY);
                     context.closePath();
                     context.fill();
                 }
