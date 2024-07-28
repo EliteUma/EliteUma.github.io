@@ -31,10 +31,10 @@
                 context.arc(player.p[0], player.p[1], 5, 0, 2 * Math.PI);
                 context.fill();
 
-                // Draw direction indicator based on rotation
+                // Draw direction indicator based on look_direction
                 context.strokeStyle = 'black';
                 context.beginPath();
-                let angleRad = player.r * (Math.PI / 180);
+                let angleRad = player.l[0] * (Math.PI / 180);
                 context.moveTo(player.p[0], player.p[1]);
                 context.lineTo(player.p[0] + 10 * Math.cos(angleRad), player.p[1] + 10 * Math.sin(angleRad));
                 context.stroke();
