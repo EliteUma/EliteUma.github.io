@@ -164,16 +164,17 @@
                     context.beginPath();
                     context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI); // Radius increased by 3 for the outline
                     context.lineWidth = 3;
-                    context.strokeStyle = player.t === 0 ? 'blue' : 'red';
+                    const outlineColor = player.t === 0 ? 'lightblue' : 'red';
+                    context.strokeStyle = outlineColor;
                     context.stroke();
 
                     // Draw direction indicator based on look_direction
-                    context.fillStyle = player.t === 0 ? 'blue' : 'red';
+                    context.fillStyle = outlineColor;
                     context.beginPath();
                     let angleRad = player.l[0] * (Math.PI / 180);
                     context.moveTo(mapX + radius * Math.cos(angleRad), mapY + radius * Math.sin(angleRad));
-                    context.lineTo(mapX + (radius + 20) * Math.cos(angleRad - Math.PI / 6), mapY + (radius + 20) * Math.sin(angleRad - Math.PI / 6));
-                    context.lineTo(mapX + (radius + 20) * Math.cos(angleRad + Math.PI / 6), mapY + (radius + 20) * Math.sin(angleRad + Math.PI / 6));
+                    context.lineTo(mapX + (radius + 10) * Math.cos(angleRad - Math.PI / 6), mapY + (radius + 10) * Math.sin(angleRad - Math.PI / 6));
+                    context.lineTo(mapX + (radius + 10) * Math.cos(angleRad + Math.PI / 6), mapY + (radius + 10) * Math.sin(angleRad + Math.PI / 6));
                     context.closePath();
                     context.fill();
                 }
