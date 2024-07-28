@@ -64,6 +64,34 @@
         const offsetX = 408.0429488385525;
         const offsetY = 817.6971110723387;
 
+        // Agent icons mapping
+        const agentIcons = [
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/raze.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/viper.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/omen.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/sova.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/sage.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/phoenix.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/jett.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/cypher.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/brimstone.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/breach.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/reyna.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/killjoy.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/skye.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/yoru.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/astra.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/kayo.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/chamber.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/neon.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/fade.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/harbor.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/gekko.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/deadlock.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/iso.png",
+            "https://cdn.mobalytics.gg/assets/valorant/images/agents/icons/clove.png"
+        ];
+
         mapImage.onload = function() {
             drawMap();
         };
@@ -104,18 +132,21 @@
                 // Convert real position to map position
                 let { mapX, mapY } = convertToMapPosition(player.p[0], player.p[1]);
 
-                context.fillStyle = player.t === 1 ? 'blue' : 'red';
-                context.beginPath();
-                context.arc(mapX, mapY, 5, 0, 2 * Math.PI);
-                context.fill();
+                // Load and draw the agent icon
+                let img = new Image();
+                img.src = agentIcons[player.a]; // player.a is the agent ID
 
-                // Draw direction indicator based on look_direction
-                context.strokeStyle = 'black';
-                context.beginPath();
-                let angleRad = player.l[0] * (Math.PI / 180);
-                context.moveTo(mapX, mapY);
-                context.lineTo(mapX + 10 * Math.cos(angleRad), mapY + 10 * Math.sin(angleRad));
-                context.stroke();
+                img.onload = function() {
+                    // Draw the icon
+                    context.drawImage(img, mapX - 16, mapY - 16, 32, 32);
+
+                    // Draw the outline
+                    context.beginPath();
+                    context.arc(mapX, mapY, 18, 0, 2 * Math.PI);
+                    context.lineWidth = 3;
+                    context.strokeStyle = player.t === 1 ? 'blue' : 'red';
+                    context.stroke();
+                };
             });
         }
 
