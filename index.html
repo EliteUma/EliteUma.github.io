@@ -161,7 +161,7 @@
             source.onmessage = function(event) {
                 let data = JSON.parse(event.data);
 
-                if (data.map_id) {
+                if (data.m) {
                     const map = loadMapImage(data.m);
                     drawMap(map);
                 }
