@@ -61,7 +61,7 @@
             1: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/abyss_map.svg", rotate: true },
             2: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/ascent_map.svg", rotate: true },
             3: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/bind_map.svg", rotate: true },
-            4: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/breeze_map.svg", rotate: false },
+            4: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/breeze_map.svg", rotate: true, scaleX: 0.070545, scaleY: 0.072406, offsetX: 545.248, offsetY: -826.043 },
             5: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/fracture_map.svg", rotate: true },
             6: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/haven_map.svg", rotate: true },
             7: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/icebox_map.svg", rotate: true },
@@ -78,12 +78,6 @@
         let scaleY = 0.06763396382050703;
         let offsetX = 408.0429488385525;
         let offsetY = 817.6971110723387;
-
-        // Custom scaling and offset for Breeze
-        const breezeScaleX = 0.3702;
-        const breezeScaleY = 0.7257;
-        const breezeOffsetX = -2740.7844;
-        const breezeOffsetY = -1301.8004;
 
         // Agent icons mapping
         const agentIcons = [
@@ -179,11 +173,11 @@
                 }
                 if (data.m && mapSettings[data.m]) {
                     currentMap = data.m;
-                    if (currentMap === 4) { // Breeze map
-                        scaleX = breezeScaleX;
-                        scaleY = breezeScaleY;
-                        offsetX = breezeOffsetX;
-                        offsetY = breezeOffsetY;
+                    if (currentMap === 4) { // Breeze
+                        scaleX = mapSettings[4].scaleX;
+                        scaleY = mapSettings[4].scaleY;
+                        offsetX = mapSettings[4].offsetX;
+                        offsetY = mapSettings[4].offsetY;
                     } else {
                         scaleX = 0.07774464204685025; // Default scaling factors
                         scaleY = 0.06763396382050703; // Default scaling factors
