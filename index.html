@@ -220,13 +220,21 @@
                     context.strokeStyle = outlineColor;
                     context.stroke();
 
-                    // Draw direction indicator based on look_direction
-                    context.fillStyle = outlineColor;
+                    context.fillStyle = 'rgba(255, 255, 255, 0.2)'; // White color with 20% opacity
                     context.beginPath();
                     let angleRad = player.l[0] * (Math.PI / 180);
-                    context.moveTo(mapX + radius * Math.cos(angleRad), mapY + radius * Math.sin(angleRad));
-                    context.lineTo(mapX + (radius + 10) * Math.cos(angleRad - Math.PI / 6), mapY + (radius + 10) * Math.sin(angleRad - Math.PI / 6));
-                    context.lineTo(mapX + (radius + 10) * Math.cos(angleRad + Math.PI / 6), mapY + (radius + 10) * Math.sin(angleRad + Math.PI / 6));
+                    let fov = 103 * (Math.PI / 180); // Field of view in radians
+
+                    // Move to the center of the player icon
+                    context.moveTo(mapX, mapY);
+
+                    // Draw the first line of the cone
+                    context.lineTo(mapX + radius * Math.cos(angleRad - fov / 2), mapY + radius * Math.sin(angleRad - fov / 2));
+
+                    // Draw the arc for the cone
+                    context.arc(mapX, mapY, radius, angleRad - fov / 2, angleRad + fov / 2);
+
+                    // Close the path and fill the cone
                     context.closePath();
                     context.fill();
                 }
