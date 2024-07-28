@@ -7,9 +7,31 @@
         canvas {
             border: 1px solid black;
         }
+        #map {
+            display: none;
+        }
     </style>
+</head>
+<body>
+    <input type="text" id="token" placeholder="Enter Token">
+    <button onclick="startVisualization()">Start Visualization</button>
+    <canvas id="radar" width="1024" height="1024"></canvas>
+    <img id="map" src="https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/ascent_map.svg" alt="Ascent Map">
     <script>
         let source;
+        const canvas = document.getElementById('radar');
+        const context = canvas.getContext('2d');
+        const mapImage = document.getElementById('map');
+        
+        mapImage.onload = function() {
+            // Draw the map rotated by 45 degrees counter-clockwise
+            context.save();
+            context.translate(canvas.width / 2, canvas.height / 2);
+            context.rotate(-45 * Math.PI / 180);
+            context.drawImage(mapImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+            context.restore();
+        };
+
         function startVisualization() {
             const token = document.getElementById('token').value;
             source = new EventSource(`https://link.elocarry.net/data/${token}`);
@@ -20,39 +42,42 @@
         }
 
         function updateRadar(data) {
-            let canvas = document.getElementById('radar');
-            let context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Redraw the map rotated by 45 degrees counter-clockwise
+            context.save();
+            context.translate(canvas.width / 2, canvas.height / 2);
+            context.rotate(-45 * Math.PI / 180);
+            context.drawImage(mapImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+            context.restore();
 
             // Draw players
             data.ps.forEach(player => {
+                // Assume the player coordinates are within the range of the map image dimensions
+                let x = player.p[0]; // You need to calculate the correct x scaling
+                let y = player.p[1]; // You need to calculate the correct y scaling
+                
                 context.fillStyle = player.t === 1 ? 'blue' : 'red';
                 context.beginPath();
-                context.arc(player.p[0], player.p[1], 5, 0, 2 * Math.PI);
+                context.arc(x, y, 5, 0, 2 * Math.PI);
                 context.fill();
 
                 // Draw direction indicator based on look_direction
                 context.strokeStyle = 'black';
                 context.beginPath();
                 let angleRad = player.l[0] * (Math.PI / 180);
-                context.moveTo(player.p[0], player.p[1]);
-                context.lineTo(player.p[0] + 10 * Math.cos(angleRad), player.p[1] + 10 * Math.sin(angleRad));
+                context.moveTo(x, y);
+                context.lineTo(x + 10 * Math.cos(angleRad), y + 10 * Math.sin(angleRad));
                 context.stroke();
             });
-
-            // Draw skills
-            data.ss.forEach(skill => {
-                context.fillStyle = skill.t === 1 ? 'green' : 'purple';
-                context.beginPath();
-                context.arc(skill.p[0], skill.p[1], 3, 0, 2 * Math.PI);
-                context.fill();
-            });
         }
+
+        canvas.addEventListener('click', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            console.log(`Clicked position: (${x}, ${y})`);
+        });
     </script>
-</head>
-<body>
-    <input type="text" id="token" placeholder="Enter Token">
-    <button onclick="startVisualization()">Start Visualization</button>
-    <canvas id="radar" width="500" height="500"></canvas>
 </body>
 </html>
