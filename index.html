@@ -20,6 +20,7 @@
             border: 1px solid black;
             width: 100%;
             height: 100%;
+            object-fit: contain;
         }
         #map {
             display: none;
@@ -68,7 +69,8 @@
         };
 
         function drawMap() {
-            // Draw the map rotated by 90 degrees counter-clockwise
+            // Clear canvas and draw the map rotated by 90 degrees counter-clockwise
+            context.clearRect(0, 0, canvas.width, canvas.height);
             context.save();
             context.translate(canvas.width / 2, canvas.height / 2);
             context.rotate(-90 * Math.PI / 180);
@@ -95,7 +97,6 @@
         }
 
         function updateRadar(data) {
-            context.clearRect(0, 0, canvas.width, canvas.height);
             drawMap();
 
             // Draw players
