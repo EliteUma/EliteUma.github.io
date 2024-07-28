@@ -156,13 +156,23 @@
                 const img = agentImages[player.a]; // player.a is the agent ID
 
                 if (img) {
-                    context.drawImage(img, mapX - 16, mapY - 16, 32, 32);
+                    const iconSize = 24; // 25% smaller than 32
+                    context.drawImage(img, mapX - iconSize / 2, mapY - iconSize / 2, iconSize, iconSize);
 
                     // Draw the outline
+                    const radius = iconSize / 2;
                     context.beginPath();
-                    context.arc(mapX, mapY, 18, 0, 2 * Math.PI);
+                    context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI); // Radius increased by 3 for the outline
                     context.lineWidth = 3;
                     context.strokeStyle = player.t === 1 ? 'blue' : 'red';
+                    context.stroke();
+
+                    // Draw direction indicator based on look_direction
+                    context.strokeStyle = 'black';
+                    context.beginPath();
+                    let angleRad = player.l[0] * (Math.PI / 180);
+                    context.moveTo(mapX + radius * Math.cos(angleRad), mapY + radius * Math.sin(angleRad));
+                    context.lineTo(mapX + (radius + 10) * Math.cos(angleRad), mapY + (radius + 10) * Math.sin(angleRad));
                     context.stroke();
                 }
             });
