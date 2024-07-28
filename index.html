@@ -164,11 +164,11 @@
                     context.beginPath();
                     context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI); // Radius increased by 3 for the outline
                     context.lineWidth = 3;
-                    context.strokeStyle = player.t === 1 ? 'blue' : 'red';
+                    context.strokeStyle = player.t === 0 ? 'blue' : 'red';
                     context.stroke();
 
                     // Draw direction indicator based on look_direction
-                    context.fillStyle = 'red';
+                    context.fillStyle = player.t === 0 ? 'blue' : 'red';
                     context.beginPath();
                     let angleRad = player.l[0] * (Math.PI / 180);
                     context.moveTo(mapX + radius * Math.cos(angleRad), mapY + radius * Math.sin(angleRad));
