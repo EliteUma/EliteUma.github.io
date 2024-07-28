@@ -168,12 +168,14 @@
                     context.stroke();
 
                     // Draw direction indicator based on look_direction
-                    context.strokeStyle = 'black';
+                    context.fillStyle = 'red';
                     context.beginPath();
                     let angleRad = player.l[0] * (Math.PI / 180);
                     context.moveTo(mapX + radius * Math.cos(angleRad), mapY + radius * Math.sin(angleRad));
-                    context.lineTo(mapX + (radius + 10) * Math.cos(angleRad), mapY + (radius + 10) * Math.sin(angleRad));
-                    context.stroke();
+                    context.lineTo(mapX + (radius + 20) * Math.cos(angleRad - Math.PI / 6), mapY + (radius + 20) * Math.sin(angleRad - Math.PI / 6));
+                    context.lineTo(mapX + (radius + 20) * Math.cos(angleRad + Math.PI / 6), mapY + (radius + 20) * Math.sin(angleRad + Math.PI / 6));
+                    context.closePath();
+                    context.fill();
                 }
             });
         }
