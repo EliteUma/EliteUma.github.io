@@ -32,7 +32,7 @@
             // Draw the map rotated by 45 degrees counter-clockwise
             context.save();
             context.translate(canvas.width / 2, canvas.height / 2);
-            context.rotate(-45 * Math.PI / 180);
+            context.rotate(-90 * Math.PI / 180);
             context.drawImage(mapImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
             context.restore();
         }
