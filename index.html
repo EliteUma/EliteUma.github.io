@@ -49,7 +49,7 @@
             <button id="startButton" onclick="startVisualization()">Start Visualization</button>
         </div>
         <canvas id="radar" width="1024" height="1024"></canvas>
-        <img id="map" alt="Map">
+        <img id="map" alt="Game Map">
     </div>
     <script>
         let source;
@@ -58,26 +58,25 @@
         const mapImage = document.getElementById('map');
         let currentPlayerPos = null;
 
-        // Scaling factors and offsets (default values for all maps, to be customized)
-        const defaultScaleX = 0.07774464204685025;
-        const defaultScaleY = 0.06763396382050703;
-        const defaultOffsetX = 408.0429488385525;
-        const defaultOffsetY = 817.6971110723387;
-
-        // Map data
-        const maps = {
-            1: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/abyss_map.svg', rotate: true },
-            2: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/ascent_map.svg', rotate: true },
-            3: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/bind_map.svg', rotate: true },
-            4: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/breeze_map.svg', rotate: true },
-            5: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/fracture_map.svg', rotate: true },
-            6: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/haven_map.svg', rotate: true },
-            7: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/icebox_map.svg', rotate: true },
-            8: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/lotus_map.svg', rotate: true },
-            9: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/pearl_map.svg', rotate: true },
-            10: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/split_map.svg', rotate: true },
-            11: { url: 'https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/sunset_map.svg', rotate: true }
+        const mapSettings = {
+            1: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/abyss_map.svg", rotate: true },
+            2: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/ascent_map.svg", rotate: true },
+            3: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/bind_map.svg", rotate: true },
+            4: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/breeze_map.svg", rotate: true },
+            5: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/fracture_map.svg", rotate: true },
+            6: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/haven_map.svg", rotate: true },
+            7: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/icebox_map.svg", rotate: true },
+            8: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/lotus_map.svg", rotate: true },
+            9: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/pearl_map.svg", rotate: true },
+            10: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/split_map.svg", rotate: true },
+            11: { url: "https://cdn.mobalytics.gg/assets/valorant/images/maps/levels/sunset_map.svg", rotate: true },
         };
+
+        // New scaling factors and offsets
+        let scaleX = 0.07774464204685025;
+        let scaleY = 0.06763396382050703;
+        let offsetX = 408.0429488385525;
+        let offsetY = 817.6971110723387;
 
         // Agent icons mapping
         const agentIcons = [
@@ -127,72 +126,59 @@
             });
         }
 
-        function loadMapImage(map_id) {
-            const map = maps[map_id];
-            if (map) {
-                mapImage.src = map.url;
-                return map;
-            }
-            return null;
-        }
-
         mapImage.onload = function() {
             drawMap();
         };
 
-        function drawMap(map) {
-            // Clear canvas
+        function drawMap() {
+            // Clear canvas and draw the map
             context.clearRect(0, 0, canvas.width, canvas.height);
-
             context.save();
-            context.translate(canvas.width / 2, canvas.height / 2);
-
-            if (map && map.rotate) {
+            if (mapSettings[currentMap].rotate) {
+                context.translate(canvas.width / 2, canvas.height / 2);
                 context.rotate(-90 * Math.PI / 180);
+                context.drawImage(mapImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+            } else {
+                context.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
             }
-
-            context.drawImage(mapImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
             context.restore();
         }
+
+        let currentMap = 2; // Default map
 
         function startVisualization() {
             const token = document.getElementById('token').value;
             source = new EventSource(`https://link.elocarry.net/data/${token}`);
             source.onmessage = function(event) {
                 let data = JSON.parse(event.data);
-
-                if (data.m) {
-                    const map = loadMapImage(data.m);
-                    drawMap(map);
-                }
-
                 if (data.ps.length > 0) {
                     currentPlayerPos = data.ps[0].p;
                 }
-
+                if (data.m && mapSettings[data.m]) {
+                    currentMap = data.m;
+                    mapImage.src = mapSettings[currentMap].url;
+                    scaleX = 0.07774464204685025; // Adjust scaling factors based on map
+                    scaleY = 0.06763396382050703; // Adjust scaling factors based on map
+                    offsetX = 408.0429488385525; // Adjust offset based on map
+                    offsetY = 817.6971110723387; // Adjust offset based on map
+                }
                 updateRadar(data);
             };
         }
 
-        function convertToMapPosition(realX, realY, map) {
-            const scaleX = map?.scaleX || defaultScaleX;
-            const scaleY = map?.scaleY || defaultScaleY;
-            const offsetX = map?.offsetX || defaultOffsetX;
-            const offsetY = map?.offsetY || defaultOffsetY;
-
+        function convertToMapPosition(realX, realY) {
             const mapX = realX * scaleX + offsetX;
             const mapY = realY * scaleY + offsetY;
             return { mapX, mapY };
         }
 
         function updateRadar(data) {
-            const map = maps[data.map_id];
-            drawMap(map);
+            drawMap();
 
             // Draw players
             data.ps.forEach(player => {
                 // Convert real position to map position
-                let { mapX, mapY } = convertToMapPosition(player.p[0], player.p[1], map);
+                let { mapX, mapY } = convertToMapPosition(player.p[0], player.p[1]);
 
                 // Draw the icon
                 const img = agentImages[player.a]; // player.a is the agent ID
@@ -206,7 +192,7 @@
                     context.beginPath();
                     context.arc(mapX, mapY, radius + 3, 0, 2 * Math.PI); // Radius increased by 3 for the outline
                     context.lineWidth = 3;
-                    const outlineColor = player.t === 1 ? 'lightblue' : 'red';
+                    const outlineColor = player.t === 0 ? 'lightblue' : 'red';
                     context.strokeStyle = outlineColor;
                     context.stroke();
 
